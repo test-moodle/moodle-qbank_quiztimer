@@ -116,7 +116,7 @@ class add_action_column extends column_base {
         // URL en la que deseas que funcione el código.
         $allowedurl = '/question/edit.php';
 
-        if (strpos($currenturl, $allowedurl) !== false) {
+        if (strpos($currenturl, $allowedurl) !== true) {
             if (question_has_capability_on($question, 'edit')) {
                 $html = '<div style="display: flex; align-items: center;">';
                 if (isset($timequestion[intval($number)])) {
