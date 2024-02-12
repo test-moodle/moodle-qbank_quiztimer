@@ -193,7 +193,7 @@ class add_action_column extends column_base {
                 echo $html;
 
                 // Include JavaScript file.
-                echo "<script src=\"/question/bank/quiztimer/classes/guardar_datos.js\"></script>";
+                echo "<script src=\"bank/quiztimer/classes/guardar_datos.js\"></script>";
             }
         }
     }
