@@ -34,3 +34,15 @@
         <a href="{{{returnurl}}}" class="btn btn-secondary">{{#str}} cancel_add_to_module, qbank_quiztimer {{/str}}</a>
     </form>
 {{/modules}}
+
+
+
+<div class="bulkmovequestion-header">
+    <h3>{{#str}} bulkmoveheader, qbank_bulkmove {{/str}}</h3>
+</div>
+<form action="{{{moveurl}}}" method="post" id="bulkmovequestion">
+    {{{categorydropdown}}}
+    <input type="submit" value="{{#str}} moveto, question {{/str}}" class="btn btn-primary" name="move" data-action="toggle" data-togglegroup="qbank"
+           data-toggle="action" form="bulkmovequestion">
+    <a href="{{{returnurl}}}" class="btn btn-secondary">{{#str}} close, qbank_bulkmove {{/str}}</a>
+</form>

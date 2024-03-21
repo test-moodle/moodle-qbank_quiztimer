@@ -35,12 +35,12 @@ defined('MOODLE_INTERNAL') || die();
 
 $string['pluginname'] = 'Quiz Timer';
 
-$string['questionstatus'] = 'Time';
+$string['questionstatus'] = 'Tiempo';
 
-$string['setting:title'] = 'Default time';
-$string['setting:time'] = 'Time';
-$string['setting:unitime'] = 'Unit Time';
+$string['setting:title'] = 'Tiempo por defecto';
+$string['setting:time'] = 'Tiempo';
+$string['setting:unitime'] = 'Unidad de tiempo';
 
-$string['hours'] = 'hours';
-$string['minutes'] = 'minutes';
-$string['seconds'] = 'seconds';
+$string['hours'] = 'horas';
+$string['minutes'] = 'minutos';
+$string['seconds'] = 'segundos';

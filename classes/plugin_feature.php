@@ -12,8 +12,24 @@
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
+// Project implemented by the \"Recovery, Transformation and Resilience Plan.
+// Funded by the European Union - Next GenerationEU\".
+//
+// Produced by the UNIMOODLE University Group: Universities of
+// Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+// Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
+/**
+ * Version details
+ *
+ * @package    qbank_quiztimer
+ * @copyright  2023 Proyecto UNIMOODLE
+ * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     ISYC <soporte@isyc.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 namespace qbank_quiztimer;
 
 use core_question\local\bank\plugin_features_base;
@@ -25,6 +41,12 @@ use core_question\local\bank\plugin_features_base;
  */
 class plugin_feature extends plugin_features_base {
 
+    /**
+     * Get the question columns for the given question bank.
+     *
+     * @param \core_question\local\bank\view $qbank description
+     * @return array
+     */
     public function get_question_columns($qbank): array {
         return [
             new add_action_column($qbank),

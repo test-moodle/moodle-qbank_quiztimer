@@ -12,8 +12,24 @@
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
+// Project implemented by the \"Recovery, Transformation and Resilience Plan.
+// Funded by the European Union - Next GenerationEU\".
+//
+// Produced by the UNIMOODLE University Group: Universities of
+// Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+// Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
+/**
+ * Version details
+ *
+ * @package    qbank_quiztimer
+ * @copyright  2023 Proyecto UNIMOODLE
+ * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     ISYC <soporte@isyc.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 namespace qbank_quiztimer;
 use core_question\local\bank\question_version_status;
 /**
@@ -107,9 +123,11 @@ class helper {
     }
 
     /**
-     * @param array $questions The questions to be added
-     * @param \stdClass $quiz The quiz object
-     * @return void
+     * Adds questions to a quiz activity.
+     *
+     * @param array $questions The array of questions to add to the quiz.
+     * @param \stdClass $quiz The quiz activity to add the questions to.
+     * @throws Some_Exception_Class description of exception
      */
     public static function question_add_to_quiz_avtivity(array $questions, \stdClass $quiz): void {
         global $CFG;
@@ -119,7 +137,11 @@ class helper {
         }
     }
 
-
+    /**
+     * Get the list of question statuses.
+     *
+     * @return array
+     */
     public static function get_question_status_list(): array {
         $statuslist = [];
         $statuslist[question_version_status::QUESTION_STATUS_READY] = get_string('questionstatusready', 'qbank_editquestion');

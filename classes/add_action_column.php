@@ -37,15 +37,23 @@ use stdClass;
 
 /**
  * Class to add an action column to the question table.
- *
- * @package    qbank_editquestion
  */
 class add_action_column extends column_base {
 
+    /**
+     * Retrieves the name.
+     *
+     * @return string
+     */
     public function get_name(): string {
         return 'questionstatus';
     }
 
+    /**
+     * Get the title.
+     *
+     * @return string
+     */
     public function get_title(): string {
         return get_string('questionstatus', 'qbank_quiztimer');
     }
@@ -57,150 +65,155 @@ class add_action_column extends column_base {
      * @param array  $rowclasses The row classes.
      */
     protected function display_content($question, $rowclasses): void {
-        global $PAGE, $USER, $DB, $questionId, $timequestion;
+        global $USER, $DB, $questionid, $timequestion;
         $timequestion = $DB->get_records('question_timer');
         $attributes = [];
+        if (question_has_capability_on($question, 'edit')) {
+            // Check if a POST request has been submitted.
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                if (isset($_POST['time']) && isset($_POST['questionId']) && $_POST['questionId'] === $question->id) {
+                    $questionid = $DB->get_field('question_versions', 'questionbankentryid',
+                    ['questionid' => $question->id], IGNORE_MISSING);
+                    $existingdata = $DB->get_record('question_timer', ['questionid' => $questionid]);
+                    $data = new stdClass;
+                    $data->id = $existingdata->id;
+                    $data->questionid = $questionid;
+                    $data->time = $_POST['time'];
+                    $data->unit_time = $_POST['dropdown_option'];
+                    $data->modifierid = $USER->id;
+                    $data->timemodified = time();
+                    $DB->update_record('question_timer', $data);
+                    return;
+                }
+            }
 
+            // Get the question ID to use it as the index.
+            $questionid = $DB->get_field('question_versions', 'questionbankentryid',
+            ['questionid' => $question->id], IGNORE_MISSING);
+            $existingdata = $DB->get_record('question_timer', ['questionid' => $questionid]);
 
-
-        // Check if a POST request has been submitted
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            if (isset($_POST['time']) && isset($_POST['questionId']) && $_POST['questionId'] === $question->id) {
-                $questionId = $question->id;
-                $existingData = $DB->get_record('question_timer', ['questionid' => $questionId]);
+            if ($existingdata) {
+                if (is_object($existingdata)) {
+                    $data = new stdClass;
+                    $data->id = $existingdata->id;
+                    $id = $data->id;
+                    $number = intval($id);
+                } else {
+                    $data = null;
+                    $number = 0; // Assign a default value to $number.
+                }
+            } else {
                 $data = new stdClass;
-                $data->id = $existingData->id;
-                $data->questionid = $questionId;
-                $data->time = $_POST['time'];
-                $data->unit_time = $_POST['dropdown_option'];
+                $data->questionid = $DB->get_field('question_versions', 'questionbankentryid',
+                    ['questionid' => $question->id], IGNORE_MISSING);
+                $number = $questionid;
                 $data->modifierid = $USER->id;
                 $data->timemodified = time();
-                $DB->update_record('question_timer', $data);
-                return;
-            }
-        }
-
-        // Get the question ID to use it as the index
-        $questionId = $question->id;
-        $existingData = $DB->get_record('question_timer', ['questionid' => $questionId]);
-
-        if ($existingData) {
-            if (is_object($existingData)) {
-                $data = new stdClass;
-                $data->id = $existingData->id;
-                $id = $data->id;
-                $number = intval($id);
-            } else {
-                $data = null;
-                $number = 0; // Assign a default value to $number
-            }
-        } else {
-            $data = new stdClass;
-            $data->questionid = $questionId;
-            $number = $questionId;
-            $data->modifierid = $USER->id;
-            $data->timemodified = time();
-            if (isset($_POST['time'])) {
-                $data->time = $_POST['time'];
-            } else {
-                $data->time = get_config('qbank_quiztimer', 'time') ; // Default value for "time"
-            }
-            if (isset($_POST['dropdown_option'])) {
-                $data->unit_time = $_POST['dropdown_option'];
-            } else {
-                $data->unit_time = get_config('qbank_quiztimer', 'time_unit'); // Default value for "unit_time"
-            }
-            $DB->insert_record('question_timer', $data);
-        }
-
-        // Obtén la URL actual.
-        $currenturl = $_SERVER['REQUEST_URI'];
-
-        // URL en la que deseas que funcione el código.
-        $allowedurl = '/question/edit.php';
-
-        if (strpos($currenturl, $allowedurl) !== true) {
-            if (question_has_capability_on($question, 'edit')) {
-                $html = '<div style="display: flex; align-items: center;">';
-                if (isset($timequestion[intval($number)])) {
-                    if ($timequestion[intval($number)]->unit_time === 's') {
-                        // Already seconds.
-                        $html .= '<input type="number" value="' . $timequestion[intval($number)]->time . '" name="time" id="text-' .
-                        $question->id.
-                        '" class="form-control" style="width: 75px; margin-right: 5px;" oninput="save(this)">';
-                    } else if ($timequestion[intval($number)]->unit_time === 'm') {
-                        // To minutes.
-                        $time = $timequestion[intval($number)]->time / 60;
-                        $html .= '<input type="number" value="' . $time . '" name="time" id="text-' .
-                        $question->id .
-                        '" class="form-control" style="width: 75px; margin-right: 5px;" oninput="save(this)">';
-                    } else if ($timequestion[intval($number)]->unit_time === 'h') {
-                        // To hours.
-                        $time = $timequestion[intval($number)]->time / 3600;
-                        $html .= '<input type="number" value="' . $time . '" name="time" id="text-' .
-                        $question->id .
-                        '" class="form-control" style="width: 75px; margin-right: 5px;" oninput="save(this)">';
-                    } else if ($timequestion[intval($number)]->unit_time === 'd') {
-                        // Default.
-                        $html .= '<input type="number  name="time" id="text-' .
-                        $question->id .
-                        '" class="form-control" style="width: 75px; margin-right: 5px;" oninput="save(this)">';
-                    }
+                if (isset($_POST['time'])) {
+                    $data->time = $_POST['time'];
                 } else {
-                    $html .= '<input type="number" value="' .get_config('qbank_quiztimer', 'time') .'"name="time" id="text-' .
-                    $question->id .
-                    '" class="form-control" style="width: 75px; margin-right: 5px;" oninput="save(this)">';
+                    $data->time = get_config('qbank_quiztimer', 'time'); // Default value for "time".
                 }
+                if (isset($_POST['dropdown_option'])) {
+                    $data->unit_time = $_POST['dropdown_option'];
+                } else {
+                    $data->unit_time = get_config('qbank_quiztimer', 'time_unit'); // Default value for "unit_time".
+                }
+                $DB->insert_record('question_timer', $data);
+            }
 
-                // Dropdown menu.
-                $options = [
-                    [
-                        'name' => '',
-                        'value' => 'd',
-                    ],
-                    [
-                        'name' => 'segundos',
-                        'value' => 's',
-                    ],
-                    [
-                        'name' => 'minutos',
-                        'value' => 'm',
-                    ],
-                    [
-                        'name' => 'horas',
-                        'value' => 'h',
-                    ],
-                ];
+            $currenturl = $_SERVER['REQUEST_URI'];
+            $allowedurl = '/question/edit.php';
 
-                $dropdown = '<select name="dropdown_option" class="custom-select my-2" id="timedropdown-' . $question->id .
-                '" onchange="save(this)" style="margin-left: 5px;">';
-
-                foreach ($options as $option) {
-                    $name = $option['name'];
-                    $value = $option['value'];
-                    if (isset($timequestion[intval($number)]) && $timequestion[intval($number)] != null) {
-                        $selected = ($value === $timequestion[intval($number)]->unit_time) ? 'selected' : '';
-                        $dropdown .= "<option value=\"$value\" $selected>$name</option>";
+            if (strpos($currenturl, $allowedurl) !== true) {
+                if (question_has_capability_on($question, 'edit')) {
+                    $html = '<div style="display: flex; align-items: center;">';
+                    if (isset($timequestion[intval($number)])) {
+                        if ($timequestion[intval($number)]->unit_time === 's') {
+                            // Already seconds.
+                            $html .= '<input type="number" value="' . $timequestion[intval($number)]->time .
+                            '" name="time" id="text-' . $question->id.
+                            '" class="form-control" style="width: 75px; margin-right: 5px;" oninput="save(this)">';
+                        } else if ($timequestion[intval($number)]->unit_time === 'm') {
+                            // To minutes.
+                            $time = $timequestion[intval($number)]->time / 60;
+                            $html .= '<input type="number" value="' . $time . '" name="time" id="text-' .
+                            $question->id .
+                            '" class="form-control" style="width: 75px; margin-right: 5px;" oninput="save(this)">';
+                        } else if ($timequestion[intval($number)]->unit_time === 'h') {
+                            // To hours.
+                            $time = $timequestion[intval($number)]->time / 3600;
+                            $html .= '<input type="number" value="' . $time . '" name="time" id="text-' .
+                            $question->id .
+                            '" class="form-control" style="width: 75px; margin-right: 5px;" oninput="save(this)">';
+                        } else if ($timequestion[intval($number)]->unit_time === 'd') {
+                            // Default.
+                            $html .= '<input type="number  name="time" id="text-' .
+                            $question->id .
+                            '" class="form-control" style="width: 75px; margin-right: 5px;" oninput="save(this)">';
+                        }
                     } else {
-                        // Check if $value is 'default' to set it as selected.
-                        $selected = ($value === get_config('qbank_quiztimer', 'time_unit')) ? 'selected' : '';
-                        $dropdown .= "<option value=\"$value\" $selected>$name</option>";
+                        $html .= '<input type="number" value="' .get_config('qbank_quiztimer', 'time') .'"name="time" id="text-' .
+                        $question->id .
+                        '" class="form-control" style="width: 75px; margin-right: 5px;" oninput="save(this)">';
                     }
+
+                    // Dropdown menu.
+                    $options = [
+                        [
+                            'name' => '',
+                            'value' => 'd',
+                        ],
+                        [
+                            'name' => get_string('seconds', 'qbank_quiztimer'),
+                            'value' => 's',
+                        ],
+                        [
+                            'name' => get_string('minutes', 'qbank_quiztimer'),
+                            'value' => 'm',
+                        ],
+                        [
+                            'name' => get_string('hours', 'qbank_quiztimer'),
+                            'value' => 'h',
+                        ],
+                    ];
+
+                    $dropdown = '<select name="dropdown_option" class="custom-select my-2" id="timedropdown-' . $question->id .
+                    '" onchange="save(this)" style="margin-left: 5px;">';
+
+                    foreach ($options as $option) {
+                        $name = $option['name'];
+                        $value = $option['value'];
+                        if (isset($timequestion[intval($number)]) && $timequestion[intval($number)] != null) {
+                            $selected = ($value === $timequestion[intval($number)]->unit_time) ? 'selected' : '';
+                            $dropdown .= "<option value=\"$value\" $selected>$name</option>";
+                        } else {
+                            // Check if $value is 'default' to set it as selected.
+                            $selected = ($value === get_config('qbank_quiztimer', 'time_unit')) ? 'selected' : '';
+                            $dropdown .= "<option value=\"$value\" $selected>$name</option>";
+                        }
+                    }
+                    $dropdown .= '</select>';
+
+                    $html .= $dropdown;
+                    $html .= '</div>';
+
+                    // Display the HTML.
+                    echo $html;
+
+                    // Include JavaScript file.
+                    echo "<script src=\"bank/quiztimer/amd/src/savedata.js\"></script>";
                 }
-                $dropdown .= '</select>';
-
-                $html .= $dropdown;
-                $html .= '</div>';
-
-                // Display the HTML.
-                echo $html;
-
-                // Include JavaScript file.
-                echo "<script src=\"bank/quiztimer/amd/src/savedata.js\"></script>";
             }
         }
+
     }
 
+    /**
+     * Get the extra classes associated with the element.
+     *
+     * @return array
+     */
     public function get_extra_classes(): array {
         return ['pr-3'];
     }
