@@ -65,7 +65,7 @@ class add_action_column extends column_base {
      * @param array  $rowclasses The row classes.
      */
     protected function display_content($question, $rowclasses): void {
-        global $USER, $DB, $questionid, $timequestion;
+        global $USER, $DB, $questionid, $timequestion, $PAGE;
         $timequestion = $DB->get_records('question_timer');
         $attributes = [];
         if (question_has_capability_on($question, 'edit')) {
@@ -129,57 +129,35 @@ class add_action_column extends column_base {
                 if (question_has_capability_on($question, 'edit')) {
                     $html = '<div style="display: flex; align-items: center;">';
                     if (isset($timequestion[intval($number)])) {
-                        if ($timequestion[intval($number)]->unit_time === 's') {
-                            // Already seconds.
-                            $html .= '<input type="number" value="' . $timequestion[intval($number)]->time .
-                            '" name="time" id="text-' . $question->id.
-                            '" class="form-control" style="width: 75px; margin-right: 5px;" oninput="save(this)">';
-                        } else if ($timequestion[intval($number)]->unit_time === 'm') {
-                            // To minutes.
-                            $time = $timequestion[intval($number)]->time / 60;
-                            $html .= '<input type="number" value="' . $time . '" name="time" id="text-' .
-                            $question->id .
-                            '" class="form-control" style="width: 75px; margin-right: 5px;" oninput="save(this)">';
-                        } else if ($timequestion[intval($number)]->unit_time === 'h') {
-                            // To hours.
-                            $time = $timequestion[intval($number)]->time / 3600;
-                            $html .= '<input type="number" value="' . $time . '" name="time" id="text-' .
-                            $question->id .
-                            '" class="form-control" style="width: 75px; margin-right: 5px;" oninput="save(this)">';
-                        } else if ($timequestion[intval($number)]->unit_time === 'd') {
-                            // Default.
-                            $html .= '<input type="number  name="time" id="text-' .
-                            $question->id .
-                            '" class="form-control" style="width: 75px; margin-right: 5px;" oninput="save(this)">';
+                        // Existing time question.
+                        $timeValue = $timequestion[intval($number)]->time;
+                        $unitTime = $timequestion[intval($number)]->unit_time;
+                        if ($unitTime === 's') {
+                            $timeValueDisplay = $timeValue;
+                        } else if ($unitTime === 'm') {
+                            $timeValueDisplay = $timeValue / 60;
+                        } else if ($unitTime === 'h') {
+                            $timeValueDisplay = $timeValue / 3600;
+                        } else {
+                            $timeValueDisplay = $timeValue; // Default.
                         }
                     } else {
-                        $html .= '<input type="number" value="' .get_config('qbank_quiztimer', 'time') .'"name="time" id="text-' .
-                        $question->id .
-                        '" class="form-control" style="width: 75px; margin-right: 5px;" oninput="save(this)">';
+                        // Default time.
+                        $timeValueDisplay = get_config('qbank_quiztimer', 'time');
                     }
+
+                    // Input field.
+                    $html .= '<input type="number" value="' . $timeValueDisplay . '" name="time" id="text-' . $question->id . '" class="form-control" style="width: 75px; margin-right: 5px;">';
 
                     // Dropdown menu.
                     $options = [
-                        [
-                            'name' => '',
-                            'value' => 'd',
-                        ],
-                        [
-                            'name' => get_string('seconds', 'qbank_quiztimer'),
-                            'value' => 's',
-                        ],
-                        [
-                            'name' => get_string('minutes', 'qbank_quiztimer'),
-                            'value' => 'm',
-                        ],
-                        [
-                            'name' => get_string('hours', 'qbank_quiztimer'),
-                            'value' => 'h',
-                        ],
+                        ['name' => '', 'value' => 'd'],
+                        ['name' => get_string('seconds', 'qbank_quiztimer'), 'value' => 's'],
+                        ['name' => get_string('minutes', 'qbank_quiztimer'), 'value' => 'm'],
+                        ['name' => get_string('hours', 'qbank_quiztimer'), 'value' => 'h'],
                     ];
 
-                    $dropdown = '<select name="dropdown_option" class="custom-select my-2" id="timedropdown-' . $question->id .
-                    '" onchange="save(this)" style="margin-left: 5px;">';
+                    $dropdown = '<select name="dropdown_option" class="custom-select my-2" id="timedropdown-' . $question->id . '" style="margin-left: 5px;">';
 
                     foreach ($options as $option) {
                         $name = $option['name'];
@@ -202,7 +180,7 @@ class add_action_column extends column_base {
                     echo $html;
 
                     // Include JavaScript file.
-                    echo "<script src=\"bank/quiztimer/amd/src/savedata.js\"></script>";
+                    $PAGE->requires->js_call_amd('qbank_quiztimer/savedata', 'save', ['text-' . $question->id, 'timedropdown-' . $question->id]);
                 }
             }
         }
