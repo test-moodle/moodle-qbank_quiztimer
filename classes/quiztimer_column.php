@@ -38,7 +38,7 @@ use stdClass;
 /**
  * Class to add an action column to the question table.
  */
-class add_action_column extends column_base {
+class quiztimer_column extends column_base {
 
     /**
      * Retrieves the name.
@@ -68,6 +68,7 @@ class add_action_column extends column_base {
         global $USER, $DB, $questionid, $timequestion, $PAGE;
         $timequestion = $DB->get_records('question_timer');
         $attributes = [];
+
         if (question_has_capability_on($question, 'edit')) {
             // Check if a POST request has been submitted.
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {

@@ -106,6 +106,7 @@ Feature: Configure qbank_quiztimer time values in site administration
     And I wait "1" seconds
     And I select "Adjust questions times" from the "id_quiztimer_editviewselector" singleselect
     And I wait "1" seconds
+    And I confirm the repaginate warning dialog
     And I select "Time for question" from the "id_quiztimer_quizmodeselector" singleselect
     And I should see "Total section time:"
     And I should see "90"

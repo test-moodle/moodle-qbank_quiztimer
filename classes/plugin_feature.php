@@ -49,7 +49,7 @@ class plugin_feature extends plugin_features_base {
      */
     public function get_question_columns($qbank): array {
         return [
-            new add_action_column($qbank),
+            new quiztimer_column($qbank),
         ];
     }
 
