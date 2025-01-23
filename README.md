@@ -1,4 +1,14 @@
-# Question Bank #
+# Question Bank - Quiztimer #
+
+## Introduction
+This Moodle plugin adds a time column to the question bank, allowing you to assign a specific time limit to each question directly within the question bank, which can then be applied in any quiz. It is designed to work alongside the [moodle-quizaccess_quiztimer](https://github.com/UNIMOODLE/moodle-quizaccess_quiztimer) plugin, enabling you to set individual time limits for each question, section, and page rather than a single time limit for the entire quiz.
+
+[<img src="https://unimoodle.github.io/assets/images/unimoodle-primarylogo-rgb-1200x353.png" height="70px"/>](https://unimoodle.github.io)
+
+
+## System Requirements ##
+Compatible with Moodle 4.1 and newer versions.
+
 
 ## Installing manually ##
 
